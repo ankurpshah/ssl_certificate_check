@@ -1,0 +1,64 @@
+# Welcome to Serverless!
+#
+# For full config options, check the kubeless plugin docs:
+#    https://github.com/serverless/serverless-kubeless
+#
+# For documentation on kubeless itself:
+#    http://kubeless.io
+
+# Update the service name below with your own service name
+service: ssl_cert_check
+app: ssl-cert-check
+tenant: ankurpshah
+
+# Please ensure the serverless-kubeless provider plugin is installed globally.
+# $ npm install -g serverless-kubeless
+#
+# ...before installing project dependencies to register this provider.
+# $ npm install
+
+provider:
+  name: kubeless
+  runtime: python3.6
+  memorySize: 512M # optional, maximum memory
+  timeout: 120 # optional, in seconds, default is 180
+  namespace: kubeless
+
+plugins:
+  - serverless-kubeless
+package:
+  include:
+    - handler.py
+    - requirements.txt
+
+  exclude:
+    - serverless.yaml
+
+functions:
+  ssl-cert-checker:
+    handler: handler.main
+    description: "Check SSL certificate status" # optional, to set the description as an annotation
+    memorySize: 512M # optional, maximum memory
+    timeout: 120 # optional, in seconds, default is 180
+    namespace: kubeless
+
+    events:
+      - schedule: "0 8 1,15 * *"
+
+    environment:
+      SLACK_CHANNEL_NAME: "#general"
+      SLACK_WEB_HOOK: "https://hooks.slack.com/services/XXXXXXXXXX/XXXXXXXXX/XXXXXXXXXXXXXXXXXX"
+      SLACK_USER_NAME: "SSL cert Check"
+      DOMAIN_LIST: "ankurpshah.com"
+      ALERT_DAYS: "30"
+
+    tags:
+      Name: "ssl_cert_check"
+      Group: "Infrastructor"
+      Creator: "ankurpshah@gmail.com"
+      Owner: "Ankur Shah"
+      Purpose: "Check SSL certificate status"
+      Function: "Utility"
+      Environment: "production"
+      Criticality: "Low"
+
